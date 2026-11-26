@@ -241,6 +241,47 @@ shutil.make_archive("/content/banglabox_out", "zip", OUT)
 files.download("/content/banglabox_out.zip")
 """)
 
+md("""
+## 11. Accent experiment (optional)
+Same text, same seed, different generation settings, so you can hear which one sounds most **Bangladeshi**.
+
+- `cfg_weight` controls how strongly the output follows **your reference clip's** speaking style. Chatterbox's authors say a value near 0 *reduces* the accent carried over from the reference, so a higher value should carry over more of your own Bangladeshi accent. We test both directions.
+- `exaggeration` is emotion and energy (0.5 is normal, lower is calmer).
+
+Listen to A to E, write down the best letter, then run the cell after this one to download them.
+""")
+code("""
+import infer
+BASE_GEN = dict(infer.GEN)          # BanglaBox's own settings
+VARIANTS = {
+    "A_default":     {},
+    "B_cfg0.8":      {"cfg_weight": 0.8},
+    "C_cfg1.0":      {"cfg_weight": 1.0},
+    "D_cfg0.3":      {"cfg_weight": 0.3},
+    "E_cfg0.8_calm": {"cfg_weight": 0.8, "exaggeration": 0.35},
+}
+ACCENT_TEXT = "ভাই, কি অবস্থা? আজকে তোমাদের একটা জোস জিনিস দেখাবো, একদম ফাটাফাটি! দাম মাত্র ৳৯৯৯, তাড়াতাড়ি অর্ডার করে ফেলো।"
+
+print("BanglaBox default settings:", BASE_GEN)
+try:
+    for name, change in VARIANTS.items():
+        infer.GEN.clear()
+        infer.GEN.update(BASE_GEN, **change)
+        print(f"\\n== {name}: {change or 'default'}")
+        speak(ACCENT_TEXT, f"accent_{name}")
+finally:
+    infer.GEN.clear()
+    infer.GEN.update(BASE_GEN)      # back to normal for steps 7 to 9
+""")
+code("""
+import zipfile
+from google.colab import files
+with zipfile.ZipFile("/content/accent_test.zip", "w") as z:
+    for f in sorted(glob.glob(f"{OUT}/*accent_*.wav")):
+        z.write(f, os.path.basename(f))
+files.download("/content/accent_test.zip")
+""")
+
 nb = {"cells": cells, "metadata": {"accelerator": "GPU", "colab": {"provenance": [], "gpuType": "T4"},
       "kernelspec": {"name": "python3", "display_name": "Python 3"}, "language_info": {"name": "python"}},
       "nbformat": 4, "nbformat_minor": 0}
