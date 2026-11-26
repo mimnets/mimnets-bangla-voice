@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final recording = _busy == _Busy.recording;
     return Scaffold(
-      appBar: AppBar(title: const Text('Bangla Voice: dictation')),
+      appBar: AppBar(title: const Text('Mimnets Bangla Voice: dictation')),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

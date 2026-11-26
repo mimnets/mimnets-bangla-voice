@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.mimnets" "\0"
-            VALUE "FileDescription", "mimnets_bangla_voice" "\0"
+            VALUE "FileDescription", "Mimnets Bangla Voice" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "mimnets_bangla_voice" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.mimnets. All rights reserved." "\0"
             VALUE "OriginalFilename", "mimnets_bangla_voice.exe" "\0"
-            VALUE "ProductName", "mimnets_bangla_voice" "\0"
+            VALUE "ProductName", "Mimnets Bangla Voice" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
