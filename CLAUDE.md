@@ -55,7 +55,7 @@ Target platforms, in order: Windows (installer plus portable), then Android, the
 - With `language` on auto, Whisper sometimes writes Bangla in Latin letters ("ki Bungla e katho bolbo"). Setting `bn` forces Bangla script. Clean mode handles both.
 - Windows shows "Python is using your microphone" while recording. That's normal. The mic stream must be fully closed after each recording.
 - `pip install` must be `python -m pip install` so it targets the same Python that runs the app.
-- Colab (Python 3.13, late 2026): installing BanglaBox's pinned numpy/torch over Colab's preloaded ones needs a session restart before importing, or transformers fails with `numpy has no attribute _no_nep50_warning`. Also uninstall Colab's torchvision (built for newer torch). The notebook does both.
+- Colab (Python 3.13, late 2026): installing BanglaBox's pinned numpy/torch over Colab's preloaded ones needs a session restart before importing, or transformers fails with `numpy has no attribute _no_nep50_warning`. Also uninstall Colab's torchvision (built for newer torch). BanglaBox's requirements.txt omits `resemble-perth` (module `perth`, Chatterbox's watermarker): install it with `--no-deps`. Chatterbox output carries an inaudible Perth watermark marking it as AI audio. The notebook does both.
 - Handy (open source, Tauri, MIT, handy.computer) only supports local Whisper. Its local Bangla accuracy is weak, which is why we use cloud STT.
 
 ## Voice clone research so far (not built or tested yet)
