@@ -226,6 +226,24 @@ class _HomePageState extends State<HomePage> {
             ),
             IconButton(tooltip: 'Refresh list', onPressed: _refreshDevices, icon: const Icon(Icons.refresh)),
           ]),
+          Row(children: [
+            const Text('Language: '),
+            DropdownButton<String>(
+              value: _settings.sttLanguage,
+              items: const [
+                DropdownMenuItem(value: 'bn', child: Text('Bangla (recommended)')),
+                DropdownMenuItem(value: 'en', child: Text('English')),
+                DropdownMenuItem(value: '', child: Text('Auto detect (can guess wrong)')),
+              ],
+              onChanged: _busy == _Busy.idle
+                  ? (v) {
+                      setState(() => _settings.sttLanguage = v ?? 'bn');
+                      _settingsStore.save(_settings);
+                      _log('Language set to ${v!.isEmpty ? 'auto detect' : v}.');
+                    }
+                  : null,
+            ),
+          ]),
           const SizedBox(height: 6),
           Row(children: [
             SegmentedButton<DictationMode>(

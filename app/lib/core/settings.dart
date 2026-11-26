@@ -17,7 +17,7 @@ class AppSettings {
   // speech to text
   String sttProvider = 'groq';
   String sttModel = 'whisper-large-v3';
-  String sttLanguage = ''; // '' = auto, 'bn', 'en'
+  String sttLanguage = 'bn'; // 'bn' (default: auto-detect sometimes guesses Spanish etc.), 'en', '' = auto
   String sttPrompt = defaultSttPrompt;
 
   // cleanup

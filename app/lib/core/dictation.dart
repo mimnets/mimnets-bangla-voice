@@ -53,7 +53,7 @@ class DictationPipeline {
 
     final String heard;
     try {
-      log.add('Sending ${(length.inMilliseconds / 1000).toStringAsFixed(1)} s of audio to ${stt.id} / ${sttOptions.model}');
+      log.add('Sending ${(length.inMilliseconds / 1000).toStringAsFixed(1)} s of audio to ${stt.id} / ${sttOptions.model}, language: ${(sttOptions.language ?? '').isEmpty ? 'auto' : sttOptions.language}');
       heard = (await stt.transcribe(pcm16ToWav(pcm, sampleRate), sttOptions)).text;
     } on ProviderError catch (e) {
       log.add('ERROR: $e');

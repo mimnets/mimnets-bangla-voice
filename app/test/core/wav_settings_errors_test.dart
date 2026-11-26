@@ -38,6 +38,7 @@ void main() {
       expect(s.hotkeyRaw, 'ctrl+alt+d');
       expect(s.hotkeyClean, 'ctrl+alt+e');
       expect(s.cloneCfgWeight, 0.8);
+      expect(s.sttLanguage, 'bn');
       expect(s.cleanupPrompt, contains(r'${output}'));
     });
 
