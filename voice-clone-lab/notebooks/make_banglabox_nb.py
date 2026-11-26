@@ -169,6 +169,17 @@ if "tts" not in globals():
           "| sample rate:", tts.sr)
 else:
     print("Model already loaded.")
+
+# Generation settings. Our pick from the Phase 1 accent test (2026-11-26): cfg_weight 0.8
+# sounded the most Bangladeshi and had the most natural timing and pauses (owner scored it 5/5).
+# BanglaBox's own default is 0.5. Change MY_SETTINGS to experiment.
+import infer
+if "ORIGINAL_GEN" not in globals():
+    ORIGINAL_GEN = dict(infer.GEN)
+MY_SETTINGS = {"cfg_weight": 0.8}
+infer.GEN.clear()
+infer.GEN.update(ORIGINAL_GEN, **MY_SETTINGS)
+print("Generation settings:", infer.GEN)
 """)
 
 md("## 7. Quick test: one sentence")
@@ -192,7 +203,7 @@ md("""
 ## 8. Read the test scripts
 Each script goes through our `bangla_text.prepare()` (numbers → Bangladeshi words, split into sentences). Each sentence is synthesised, then they're joined with a short pause.
 
-File names include the reference clip and the seed, so takes from different clips don't overwrite each other: `banglabox_<clip>_<script>_seed<N>.wav`.
+Uses the settings from step 6 (`cfg_weight` 0.8). File names include the clip, the cfg_weight and the seed, so takes don't overwrite each other: `banglabox_<clip>_<script>_cfg<X>_seed<N>.wav`.
 - `SEED`: change it (1, 2, 3...) to get a different "take" of the same text.
 - `PAUSE_S`: the silence between sentences.
 """)
@@ -214,7 +225,7 @@ def speak(text, label):
         pieces += [to_np(wav), np.zeros(int(sr * PAUSE_S), np.float32)]
     audio = np.concatenate(pieces)
     took = time.time() - t0
-    path = f"{OUT}/banglabox_{REF_NAME}_{label}_seed{SEED}.wav"
+    path = f"{OUT}/banglabox_{REF_NAME}_{label}_cfg{infer.GEN['cfg_weight']}_seed{SEED}.wav"
     sf.write(path, audio, sr)
     print(f"Saved {os.path.basename(path)}: {len(audio) / sr:.1f} s audio in {took:.0f} s "
           f"({len(audio) / sr / took:.2f}x real time)\\n")
@@ -242,36 +253,40 @@ files.download("/content/banglabox_out.zip")
 """)
 
 md("""
-## 11. Accent experiment (optional)
-Same text, same seed, different generation settings, so you can hear which one sounds most **Bangladeshi**.
+## 11. Accent fine-tuning (optional)
+Same text, same seed, different settings. **Round 1** (2026-11-26) compared cfg_weight 0.5 / 0.8 / 1.0 / 0.3 and 0.8 calm. The owner picked **cfg_weight 0.8** (5/5), with natural timing and pauses; all the others had odd timing and stops.
 
-- `cfg_weight` controls how strongly the output follows **your reference clip's** speaking style. Chatterbox's authors say a value near 0 *reduces* the accent carried over from the reference, so a higher value should carry over more of your own Bangladeshi accent. We test both directions.
-- `exaggeration` is emotion and energy (0.5 is normal, lower is calmer).
+**Round 2** (this cell) fine-tunes around the winner:
+- `A_default`: BanglaBox's original (cfg 0.5), for reference
+- `B_cfg0.8`: current pick
+- `F_cfg0.7`, `G_cfg0.9`: a little less or more
+- `H_cfg0.8_energetic`: more energy (exaggeration 0.65)
+- `I_cfg0.8_steady`: lower temperature (0.4), more consistent and less random
 
-Listen to A to E, write down the best letter, then run the cell after this one to download them.
+`cfg_weight` controls how strongly the output follows your reference clip's speaking style; higher copies more of your own accent.
+Listen to them, note the best one, then run the next cell to download.
 """)
 code("""
-import infer
-BASE_GEN = dict(infer.GEN)          # BanglaBox's own settings
 VARIANTS = {
-    "A_default":     {},
-    "B_cfg0.8":      {"cfg_weight": 0.8},
-    "C_cfg1.0":      {"cfg_weight": 1.0},
-    "D_cfg0.3":      {"cfg_weight": 0.3},
-    "E_cfg0.8_calm": {"cfg_weight": 0.8, "exaggeration": 0.35},
+    "A_default":          {},
+    "B_cfg0.8":           {"cfg_weight": 0.8},
+    "F_cfg0.7":           {"cfg_weight": 0.7},
+    "G_cfg0.9":           {"cfg_weight": 0.9},
+    "H_cfg0.8_energetic": {"cfg_weight": 0.8, "exaggeration": 0.65},
+    "I_cfg0.8_steady":    {"cfg_weight": 0.8, "temperature": 0.4},
 }
 ACCENT_TEXT = "ভাই, কি অবস্থা? আজকে তোমাদের একটা জোস জিনিস দেখাবো, একদম ফাটাফাটি! দাম মাত্র ৳৯৯৯, তাড়াতাড়ি অর্ডার করে ফেলো।"
 
-print("BanglaBox default settings:", BASE_GEN)
+print("BanglaBox original settings:", ORIGINAL_GEN)
 try:
     for name, change in VARIANTS.items():
         infer.GEN.clear()
-        infer.GEN.update(BASE_GEN, **change)
-        print(f"\\n== {name}: {change or 'default'}")
+        infer.GEN.update(ORIGINAL_GEN, **change)
+        print(f"\\n== {name}: {change or 'BanglaBox default'}")
         speak(ACCENT_TEXT, f"accent_{name}")
 finally:
     infer.GEN.clear()
-    infer.GEN.update(BASE_GEN)      # back to normal for steps 7 to 9
+    infer.GEN.update(ORIGINAL_GEN, **MY_SETTINGS)   # back to our chosen settings
 """)
 code("""
 import zipfile
