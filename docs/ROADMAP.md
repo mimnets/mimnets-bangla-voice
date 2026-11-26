@@ -29,7 +29,7 @@ Goal: find out which option makes the owner's voice sound right in Bangladeshi B
 
 Done when the owner has listened to all three and picked a winner (or decided none is good enough yet).
 
-## Phase 2: Shared design
+## Phase 2: Shared design (done 2026-11-26: docs/ARCHITECTURE.md; backend = Colab by hand + owner's Modal endpoint)
 - Write `docs/ARCHITECTURE.md`: provider interfaces (`SpeechToText`, `TextCleanup`, `TextToSpeech`, `VoiceClone`), settings model, key storage, error handling (401, 402, 429, network), hallucination and silence filters, clipboard and paste flow.
 - Decide the voice clone backend from Phase 1. If it needs a GPU (BanglaBox or IndicF5), design a small serverless endpoint (e.g. Modal) that the app calls; otherwise call Sarvam directly.
 

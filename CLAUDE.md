@@ -35,8 +35,9 @@ Target platforms, in order: Windows (installer plus portable), then Android, the
 ### Groq (free tier, no card): the default for everything
 - STT: `POST https://api.groq.com/openai/v1/audio/transcriptions`, multipart form: `file` (wav), `model`, `language` (optional ISO-639-1: `bn` or `en`; omit for auto), `prompt` (vocabulary hint), `temperature=0`, `response_format=json`. Response: `{"text": ...}`.
 - STT models: `whisper-large-v3` (default, best for Bangla), `whisper-large-v3-turbo`.
+- Checked 2026-11-26: `prompt` is limited to 224 tokens; free-tier max file 25 MB; each request is billed as at least 10 s of audio; 429 responses carry a `retry-after` header (seconds). No deprecations for whisper-large-v3 or gpt-oss.
 - Free STT limits: 20 req/min, 2,000 req/day, 7,200 audio seconds/hour, 28,800 audio seconds/day.
-- Chat (cleanup): `POST https://api.groq.com/openai/v1/chat/completions` (OpenAI-compatible). Default model `openai/gpt-oss-120b` with `"reasoning_effort": "low"`. If a 400 mentions reasoning, retry without that field. Other free chat models seen: `openai/gpt-oss-20b`, `qwen/qwen3.8-27b`. Model lists change, so check https://console.groq.com/docs/rate-limits before hardcoding.
+- Chat (cleanup): `POST https://api.groq.com/openai/v1/chat/completions` (OpenAI-compatible). Default model `openai/gpt-oss-120b` with `"reasoning_effort": "low"`. If a 400 mentions reasoning, retry without that field. Other free chat models seen: `openai/gpt-oss-20b`, `qwen/qwen3.8-27b` (qwen3.6-27b was shut down 2026-09-14). Chat limits seen 2026-11-26: 30 RPM, 1K RPD, 8K TPM, 200K TPD. Model lists change, so check https://console.groq.com/docs/rate-limits before hardcoding.
 
 ### OpenRouter (optional, paid for speech)
 - STT endpoint `POST https://openrouter.ai/api/v1/audio/transcriptions`, JSON body with `input_audio: {data: <base64>, format: "wav"}`. Audio models need at least $0.50 account balance or the API returns 402. That's why Groq became the default.
@@ -71,6 +72,12 @@ Practical rules for good clones:
 - Normalise text before synthesis: numbers, dates and currency to Bangla words (১২৫০ টাকা → এক হাজার দুইশো পঞ্চাশ টাকা).
 - Split long scripts at । ? ! and synthesise sentence by sentence, then join.
 - Only clone voices with consent. This is the owner's own voice.
+
+## Phase 2 decisions (2026-11-26, details in docs/ARCHITECTURE.md)
+
+- Voice clone backend is **both**: Colab by hand (free, now) and the owner's own Modal endpoint (T4, pay per second, $30/month free credit on the Starter plan; weights on a Modal Volume; proxy-auth tokens). Same `voice-server/banglabox_core.py` for both.
+- The app sends one sentence per request; the Dart port of `bangla_text` and the Python one share test cases in `shared/bangla_text_cases.json`.
+- Flutter stable is 3.50 / Dart 3.14 (Nov 2026). `keypress_simulator` is discontinued: send Ctrl+V with Win32 `SendInput` via the `win32` package. `hotkey_manager` 0.4.x needs Flutter 3.50 and reports key-down only on Windows.
 
 ## Chosen tech stack (and why)
 
