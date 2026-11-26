@@ -44,7 +44,7 @@ Colab is Google's free notebook service. It lends you a GPU (an NVIDIA T4) for a
 3. **Turn on the GPU:** menu **Runtime → Change runtime type → T4 GPU → Save**.
 4. **Run the cells one at a time, top to bottom** (click ▶ on each and wait until it finishes):
    1. GPU check: should print `Tesla T4`.
-   2. Install: 3 to 5 minutes. Red "dependency resolver" lines are normal. If Colab asks to **Restart session**, click it and continue at step 3.
+   2. Install: 3 to 5 minutes. Red "dependency resolver" lines are normal. It then restarts the session on purpose ("session crashed" is expected); continue at step 3. If you ever see `numpy has no attribute _no_nep50_warning`, do **Runtime → Restart session** and run from step 3 again.
    3. Download BanglaBox: about 3.5 GB. All four lines should say `OK`.
    4. Get project code: clones this repo for `bangla_text.py` and the test scripts. If the repo is private it says "Clone failed"; then run the upload cell below it and upload `bangla_text.py` plus the three `test_scripts\*.txt` files.
    5. Upload `reference.wav`, then listen to the player.
