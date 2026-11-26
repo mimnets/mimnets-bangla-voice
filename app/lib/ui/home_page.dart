@@ -11,11 +11,14 @@ import '../core/providers/groq.dart';
 import '../core/providers/providers.dart';
 import '../core/settings.dart';
 import '../core/wav.dart';
+import '../platform/beeps.dart';
+import '../platform/hotkeys.dart';
+import '../platform/paste.dart';
 import '../platform/recorder.dart';
 import '../platform/storage.dart';
 
 /// Main window: key setup, mic choice, Record, level meter, Test mic, result, log.
-/// Same layout idea as the prototype. Hotkeys and paste come in Phase 3 step 3.
+/// Same layout idea as the prototype. Global hotkeys record and paste into the focused app.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -44,6 +47,12 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<double>? _levelSub;
   bool _keyHidden = true;
 
+  final _hotkeys = DictationHotkeys();
+  final _beeps = Beeps();
+  final _paste = PasteService();
+  DictationMode _recMode = DictationMode.raw; // mode of the recording in progress
+  bool _pasteResult = false; // true when started by a hotkey: paste into the focused app
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +64,29 @@ class _HomePageState extends State<HomePage> {
     _settings = await _settingsStore.load();
     _keyCtrl.text = await _keys.read(KeyStore.groq);
     await _refreshDevices();
-    _setStatus(_keyCtrl.text.isEmpty ? 'Paste your free Groq key, then Save.' : 'Ready. Click Record and speak.',
+    (await _hotkeys.register(
+      raw: _settings.hotkeyRaw,
+      clean: _settings.hotkeyClean,
+      onRaw: () => _onHotkey(DictationMode.raw),
+      onClean: () => _onHotkey(DictationMode.clean),
+    ))
+        .forEach(_log);
+    _setStatus(
+        _keyCtrl.text.isEmpty
+            ? 'Paste your free Groq key, then Save.'
+            : 'Ready. Click Record, or press ${describeHotKey(_settings.hotkeyRaw)} in any app.',
         Colors.black87);
+  }
+
+  /// Hotkey pressed anywhere in Windows: press once to start, again to stop.
+  void _onHotkey(DictationMode mode) {
+    if (_busy == _Busy.recording) {
+      _toggleRecord();
+    } else if (_busy == _Busy.idle) {
+      _toggleRecord(mode: mode, paste: true);
+    } else {
+      _log('Still working on the last recording, hotkey ignored.');
+    }
   }
 
   Future<void> _refreshDevices() async {
@@ -90,10 +120,11 @@ class _HomePageState extends State<HomePage> {
     _setStatus('Ready. Click Record and speak.', Colors.black87);
   }
 
-  Future<void> _toggleRecord() async {
+  Future<void> _toggleRecord({DictationMode? mode, bool paste = false}) async {
     if (_busy == _Busy.recording) {
-      final rec = await _recorder.stop();
       setState(() => _busy = _Busy.working);
+      final rec = await _recorder.stop();
+      if (_settings.beep) _beeps.stop();
       _log('Recorded ${(rec.wallTime.inMilliseconds / 1000).toStringAsFixed(1)} s, '
           'peak ${peakAmplitude(rec.pcm)}, measured rate ~${rec.measuredRate} Hz');
       await _process(rec);
@@ -105,9 +136,17 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     try {
+      _recMode = mode ?? _mode;
+      _pasteResult = paste;
       await _recorder.start(deviceId: _settings.inputDevice);
       setState(() => _busy = _Busy.recording);
-      _setStatus('● Recording... click Stop when done', Colors.red);
+      if (_settings.beep) _beeps.start();
+      _setStatus(
+          paste
+              ? '● Recording (${_recMode == DictationMode.clean ? 'clean up' : 'type exactly'})... '
+                  'press the hotkey again to stop'
+              : '● Recording... click Stop when done',
+          Colors.red);
     } on RecorderException catch (e) {
       _log('ERROR: $e');
       _setStatus('Mic error, see log', Colors.red);
@@ -115,7 +154,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _process(Recording rec) async {
-    _setStatus(_mode == DictationMode.clean ? 'Transcribing and cleaning up...' : 'Transcribing...', Colors.orange);
+    _setStatus(_recMode == DictationMode.clean ? 'Transcribing and cleaning up...' : 'Transcribing...', Colors.orange);
     final key = _keyCtrl.text.trim();
     final pipeline = DictationPipeline(
       stt: GroqSpeechToText(apiKey: key),
@@ -123,12 +162,17 @@ class _HomePageState extends State<HomePage> {
       cleanup: GroqCleanup(apiKey: key),
       cleanupOptions: CleanupOptions(model: _settings.cleanupModel, promptTemplate: _settings.cleanupPrompt),
     );
-    final r = await pipeline.process(rec.pcm, rec.sampleRate, _mode);
+    final r = await pipeline.process(rec.pcm, rec.sampleRate, _recMode);
     r.log.forEach(_log);
     switch (r.outcome) {
       case DictationOutcome.ok:
         _resultCtrl.text = r.text;
-        _setStatus('✓ Done. Dictation works!', Colors.green);
+        if (_pasteResult) {
+          await _paste.insert(r.text, method: _settings.pasteMethod);
+          _setStatus('✓ Typed at your cursor', Colors.green);
+        } else {
+          _setStatus('✓ Done. Dictation works!', Colors.green);
+        }
       case DictationOutcome.silent:
         _setStatus('No voice heard. Check the mic.', Colors.red);
       case DictationOutcome.nothingHeard:
@@ -174,8 +218,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _levelSub?.cancel();
+    _hotkeys.unregisterAll();
     _recorder.dispose();
     _player.dispose();
+    _beeps.dispose();
     super.dispose();
   }
 
@@ -255,6 +301,13 @@ class _HomePageState extends State<HomePage> {
               onSelectionChanged: _busy == _Busy.idle ? (s) => setState(() => _mode = s.first) : null,
             ),
           ]),
+          const SizedBox(height: 4),
+          Text(
+            'In any app: ${describeHotKey(_settings.hotkeyRaw)} = type exactly, '
+            '${describeHotKey(_settings.hotkeyClean)} = clean up into English. '
+            'Press once to start, again to stop.',
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
+          ),
           const SizedBox(height: 10),
           Row(children: [
             FilledButton.icon(

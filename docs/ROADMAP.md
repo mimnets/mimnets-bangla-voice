@@ -40,6 +40,12 @@ Done when the owner has listened to all three and picked a winner (or decided no
 - Start with Windows option, single instance, remembers settings.
 - Packaging: Inno Setup installer and a portable zip. GitHub Actions workflow that builds both on each tagged release.
 
+## Optional experiment: local / Bangla-tuned speech to text (owner agreed 2026-11-27)
+- Goal: better Bangla spelling (Groq whisper-large-v3 wrote তুনি for তুমি, পার্ছো for পাচ্ছো) and an offline option.
+- Record 10 to 20 of the owner's sentences once, with correct transcripts. Compare Groq whisper-large-v3 against 2 or 3 Bangla fine-tuned Whisper models from Hugging Face (check licences first). Count word errors.
+- The owner's laptop is CPU-only (Intel UHD), so local large models will be slow: measure seconds per sentence too.
+- If one clearly wins, add it as a `SpeechToText` provider ("Local (offline)") behind the existing interface.
+
 ## Phase 4: Android
 - Same Flutter app for settings and the voice clone studio.
 - Kotlin `InputMethodService` keyboard with a big mic button (tap to start and stop) plus a "clean to English" toggle. It commits text into any app's text field. Shares API code through a platform channel or a small Kotlin client.

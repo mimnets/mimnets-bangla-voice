@@ -4,9 +4,18 @@
 class AppSettings {
   static const int currentSchema = 1;
 
+  /// Whisper copies the spelling style of this hint, so it includes colloquial Bangladeshi
+  /// Bangla (তুমি, পাচ্ছো: words Whisper misspelled for the owner on 2026-11-27).
   static const defaultSttPrompt = 'Mixed Bangla and English speech about programming and AI tools. '
       'Words like VS Code, Python, JavaScript, React, function, API, file, '
-      'folder, Claude, ChatGPT.';
+      'folder, Claude, ChatGPT. তুমি কি শুনতে পাচ্ছো? আমি এই ফাইলে একটা login function বানাতে চাই।';
+
+  /// Earlier defaults: saved settings that still hold one of these get the new default.
+  static const _oldSttPrompts = {
+    'Mixed Bangla and English speech about programming and AI tools. '
+        'Words like VS Code, Python, JavaScript, React, function, API, file, '
+        'folder, Claude, ChatGPT.',
+  };
 
   static const defaultCleanupPrompt = 'You are cleaning up voice dictation. The speaker talks in Bangla, '
       'English, or a mix.\nFix transcription mistakes, then rewrite it as a '
@@ -62,6 +71,7 @@ class AppSettings {
     s.sttModel = pick('stt.model', s.sttModel);
     s.sttLanguage = pick('stt.language', s.sttLanguage);
     s.sttPrompt = pick('stt.prompt', s.sttPrompt);
+    if (_oldSttPrompts.contains(s.sttPrompt)) s.sttPrompt = defaultSttPrompt;
     s.cleanupProvider = pick('cleanup.provider', s.cleanupProvider);
     s.cleanupModel = pick('cleanup.model', s.cleanupModel);
     s.cleanupPrompt = pick('cleanup.prompt', s.cleanupPrompt);

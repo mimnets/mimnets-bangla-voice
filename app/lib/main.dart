@@ -1,8 +1,12 @@
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'ui/home_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Reclaim hotkeys left registered by a previous run or a hot restart.
+  await hotKeyManager.unregisterAll();
   runApp(const BanglaVoiceApp());
 }
 
