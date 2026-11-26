@@ -5,6 +5,7 @@ Usage (from voice-clone-lab, with the venv active):
     python record_reference.py --seconds 15
     python record_reference.py --list-devices
     python record_reference.py --device 3
+    python record_reference.py --name energetic --text-file my_text.txt
 
 What it does:
   1. Opens the text to read in Notepad (Bangla renders better there than in a terminal).
@@ -203,6 +204,7 @@ def main():
     p.add_argument("--name", default="me", help="label for the saved files (default: me)")
     p.add_argument("--list-devices", action="store_true", help="show microphones and exit")
     p.add_argument("--no-open", action="store_true", help="don't open the text in Notepad")
+    p.add_argument("--text-file", help="UTF-8 file with your own text to read (default: built-in greeting)")
     args = p.parse_args()
 
     if args.list_devices:
@@ -213,15 +215,18 @@ def main():
         return
 
     REF_DIR.mkdir(exist_ok=True)
+    text = SUGGESTED_TEXT
+    if args.text_file:
+        text = Path(args.text_file).read_text(encoding="utf-8").strip()
     read_file = REF_DIR / "read_this.txt"
-    read_file.write_text(SUGGESTED_TEXT + "\n", encoding="utf-8")
+    read_file.write_text(text + "\n", encoding="utf-8")
 
     mic = sd.query_devices(args.device, "input")["name"]
     print(f"Microphone: {mic}")
     print("Tips: quiet room, no music, mic about one hand-width from your mouth,")
     print("      speak in your normal TikTok tone.\n")
     print("Read this text (also opened in Notepad):\n")
-    print("  " + SUGGESTED_TEXT + "\n")
+    print("  " + text + "\n")
     if not args.no_open:
         open_in_notepad(read_file)
 
@@ -266,7 +271,7 @@ def main():
     save_wav(REF_DIR / "reference.wav", audio, TARGET_RATE)
 
     same = ask("\nDid you read the text exactly as written? [Y/n] ", "Yn")
-    transcript = SUGGESTED_TEXT
+    transcript = text
     txt_path.write_text(transcript + "\n", encoding="utf-8")
     if same == "n":
         print("Notepad will open the transcript. Change it to exactly what you said, save (Ctrl+S), close it.")
