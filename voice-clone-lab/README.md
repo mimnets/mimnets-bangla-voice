@@ -36,12 +36,11 @@ Keys are read from the `.env` file in the repo root (see `.env.example`).
 
 Colab is Google's free notebook service. It lends you a GPU (an NVIDIA T4) for a few hours, which BanglaBox needs. Nothing gets installed on your PC.
 
-1. **Record your reference clip** (step 1 above) so you have `voice-clone-labeferenceeference.wav`.
+1. **Record your reference clip** (step 1 above) so you have `voice-clone-lab\reference\reference.wav`.
 2. **Open the notebook in Colab**, either way:
    - If the GitHub repo is public, open this link:
      https://colab.research.google.com/github/mimnets/mimnets-bangla-voice/blob/main/voice-clone-lab/notebooks/banglabox_colab.ipynb
-   - Otherwise go to https://colab.research.google.com, sign in with your Google account, choose **File → Upload notebook**, and pick `voice-clone-lab
-otebooksanglabox_colab.ipynb`.
+   - Otherwise go to https://colab.research.google.com, sign in with your Google account, choose **File → Upload notebook**, and pick `voice-clone-lab\notebooks\banglabox_colab.ipynb`.
 3. **Turn on the GPU:** menu **Runtime → Change runtime type → T4 GPU → Save**.
 4. **Run the cells one at a time, top to bottom** (click ▶ on each and wait until it finishes):
    1. GPU check: should print `Tesla T4`.
