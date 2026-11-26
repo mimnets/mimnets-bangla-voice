@@ -1,0 +1,33 @@
+# secrets
+.env
+*.env
+config.json
+**/config.json
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# audio and outputs
+*.wav
+*.mp3
+*.m4a
+out/
+voice-clone-lab/reference/
+
+# flutter / dart
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+app/android/key.properties
+*.jks
+*.keystore
+
+# os / editors
+.DS_Store
+Thumbs.db
+.idea/
