@@ -90,6 +90,10 @@ Practical rules for good clones:
 
 Alternative considered: Tauri (Rust plus web UI), which is what Handy uses. It's excellent for desktop, but its mobile support is less mature, and Rust is harder for a non-specialist owner. Kotlin Multiplatform is strong on Android but heavier on desktop. Pure Python can't produce a real Android app.
 
+## Current status
+
+See `docs/HANDOFF.md` for where the work stands (Phase 3, Windows app, in progress), how to run everything, open questions and tooling gotchas. Update it at the end of each session.
+
 ## Working rules for Claude Code in this repo
 
 - Work phase by phase (see `docs/ROADMAP.md`). Finish and test one phase before starting the next, and stop to check with the owner at the end of each phase.
