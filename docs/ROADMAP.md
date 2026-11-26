@@ -16,7 +16,7 @@ mimnets-bangla-voice/
   app/                        Phase 3 onward, Flutter
 ```
 
-## Phase 1: Voice clone lab (do this first)
+## Phase 1: Voice clone lab (done 2026-11-26: BanglaBox, cfg_weight 0.8; Sarvam and IndicF5 not needed)
 Goal: find out which option makes the owner's voice sound right in Bangladeshi Bangla, before building any app.
 
 1. `voice-clone-lab/record_reference.py`: records a 10 to 15 s reference clip (16 or 24 kHz mono WAV) with a countdown and a level check, plays it back, and saves it with a transcript file the owner types in.

@@ -5,7 +5,7 @@ Read this whole file before doing anything. It holds the background, decisions, 
 ## Who this is for
 
 - Owner: Monir, based in Bangladesh (timezone Asia/Dhaka). Speaks Bangladeshi Bangla and mixes in English, especially tech words ("ei file e ekta login function banao").
-- Main machine: Windows 11 laptop. Python is installed. Works in VS Code with AI coding tools.
+- Main machine: Windows 11 laptop, 16 GB RAM, Intel UHD Graphics (no NVIDIA GPU, so GPU models must run in the cloud). Python 3.15 is installed. Works in VS Code with AI coding tools.
 - Budget: as close to free as possible. ElevenLabs was ruled out as too expensive. Prefer free tiers and pay-per-use APIs with free credit over subscriptions.
 - Not a full-time developer. Explain choices in plain language, keep setup steps short, and give exact commands.
 
@@ -58,7 +58,7 @@ Target platforms, in order: Windows (installer plus portable), then Android, the
 - Colab (Python 3.13, late 2026): installing BanglaBox's pinned numpy/torch over Colab's preloaded ones needs a session restart before importing, or transformers fails with `numpy has no attribute _no_nep50_warning`. Also uninstall Colab's torchvision (built for newer torch). BanglaBox's requirements.txt omits `resemble-perth` (module `perth`, Chatterbox's watermarker): install it with `--no-deps`. Chatterbox output carries an inaudible Perth watermark marking it as AI audio. The notebook does both.
 - Handy (open source, Tauri, MIT, handy.computer) only supports local Whisper. Its local Bangla accuracy is weak, which is why we use cloud STT.
 
-## Voice clone research so far (not built or tested yet)
+## Voice clone research (Phase 1 done 2026-11-26: BanglaBox with cfg_weight 0.8 chosen, see voice-clone-lab/RESULTS.md)
 
 Candidates to test, in order of effort:
 
